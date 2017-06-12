@@ -1,12 +1,15 @@
 module Main exposing (..)
 
 import Html exposing (Html, program)
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
+import Task
+import Svg as Svg exposing (Svg, svg)
+import Svg.Attributes exposing (x, y, width, height, fillOpacity)
+import Window as W
 
 
 type alias Model =
-    { staff : Staff
+    { window : W.Size
+    , staff : Staff
     }
 
 
@@ -24,6 +27,7 @@ type alias Line =
 init : ( Model, Cmd Msg )
 init =
     ( Model
+        (W.Size 100 1000)
         (Staff
             [ Line False True
             , Line True False
@@ -46,32 +50,36 @@ init =
             , Line False True
             ]
         )
-    , Cmd.none
+    , Task.perform ResizeMsg W.size
     )
 
 
 type Msg
-    = NA
+    = ResizeMsg W.Size
 
 
 view : Model -> Html Msg
 view model =
-    model.staff.lines
-        |> List.indexedMap createLine
-        |> svg [ width "1000", height "1000", viewBox "0 0 1000 1000" ]
+    let
+        createLine =
+            createWindowedLine model.window
+    in
+        model.staff.lines
+            |> List.indexedMap createLine
+            |> svg [ width <| toString (model.window.width), height <| toString (model.window.width) ]
 
 
-createLine : Int -> Line -> Svg Msg
-createLine i line =
-    rect
+createWindowedLine : W.Size -> Int -> Line -> Svg Msg
+createWindowedLine size i line =
+    Svg.rect
         [ x "0"
         , y <| toString (i * 10)
         , height "10"
         , width <|
             if line.isLedger then
-                "50"
+                toString (toFloat (size.width) * 0.05)
             else
-                "1000"
+                toString (size.width)
         , fillOpacity <|
             if line.isSpace then
                 "0.0"
@@ -83,12 +91,14 @@ createLine i line =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        ResizeMsg size ->
+            ( { model | window = size }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    W.resizes ResizeMsg
 
 
 main : Program Never Model Msg
