@@ -1,10 +1,11 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Html exposing (Html, program)
 import Task
-import Svg exposing (Svg, Attribute, svg)
-import Svg.Attributes as Svg exposing (x, y, width, height)
+import Svg exposing (Svg, svg)
+import Svg.Attributes as Svg
 import Window
+import Infrastructure.Pane as Pane exposing (Pane, attributify)
 
 
 type alias Model =
@@ -23,14 +24,6 @@ type alias EditPane =
 type alias StaffPane =
     { pane : Pane
     , lines : List StaffLine
-    }
-
-
-type alias Pane =
-    { width : Float
-    , height : Float
-    , x : Float
-    , y : Float
     }
 
 
@@ -121,13 +114,13 @@ type Msg
 view : Model -> Html Msg
 view { pane, edit } =
     svg
-        (paneSize pane)
+        (Pane.attributify pane)
         [ drawEditPane edit ]
 
 
 drawEditPane : EditPane -> Svg Msg
 drawEditPane { pane, legend, staff } =
-    Svg.g (paneAttributes pane)
+    Svg.g (Pane.attributify pane)
         [ drawLegend legend
         , drawStaff staff
         ]
@@ -135,27 +128,12 @@ drawEditPane { pane, legend, staff } =
 
 drawLegend : LegendPane -> Svg Msg
 drawLegend { pane, lines } =
-    Svg.rect (paneAttributes pane ++ [ Svg.fill "#fed528" ]) []
+    Svg.rect (Pane.attributify pane ++ [ Svg.fill "#fed528" ]) []
 
 
 drawStaff : StaffPane -> Svg Msg
 drawStaff { pane, lines } =
-    Svg.rect (paneAttributes pane ++ [ Svg.fill "#993232" ]) []
-
-
-paneAttributes : Pane -> List (Attribute msg)
-paneAttributes pane =
-    paneSize pane ++ panePosition pane
-
-
-paneSize : Pane -> List (Attribute msg)
-paneSize pane =
-    [ width <| toString (pane.width), height <| toString (pane.height) ]
-
-
-panePosition : Pane -> List (Attribute msg)
-panePosition pane =
-    [ x <| toString (pane.x), y <| toString (pane.y) ]
+    Svg.rect (Pane.attributify pane ++ [ Svg.fill "#993232" ]) []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
