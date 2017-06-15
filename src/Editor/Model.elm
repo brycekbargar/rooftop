@@ -1,4 +1,4 @@
-module Editor.Model exposing (EditPane, init, StaffPane, LegendPane)
+module Editor.Model exposing (EditPane, init, StaffPane, LegendPane, StaffLine, LegendLine)
 
 import Task exposing (Task, succeed)
 import Infrastructure.Pane exposing (Pane)

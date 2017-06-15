@@ -14,7 +14,7 @@ type alias Pane =
 
 attributify : Pane -> List (Attribute msg)
 attributify pane =
-    size pane ++ position pane
+    size pane ++ position pane ++ transform pane
 
 
 size : Pane -> List (Attribute msg)
@@ -25,3 +25,8 @@ size pane =
 position : Pane -> List (Attribute msg)
 position pane =
     [ x <| toString (pane.x), y <| toString (pane.y) ]
+
+
+transform : Pane -> List (Attribute msg)
+transform pane =
+    [ Svg.transform ("translate (" ++ toString (pane.x) ++ " " ++ toString (pane.y) ++ ")") ]
